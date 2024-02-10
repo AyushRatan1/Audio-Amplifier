@@ -50,7 +50,7 @@ function amplifyAudio(audioFile) {
 
             // Create a gain node for amplification
             const gainNode = audioContext.createGain();
-            gainNode.gain.value = 25; // Adjust the gain value for higher amplification
+            gainNode.gain.value = 55; // Adjust the gain value for higher amplification
 
             // Connect the nodes
             source.connect(gainNode);
