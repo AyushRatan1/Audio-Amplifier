@@ -19,6 +19,7 @@ function startRecording() {
                 const audioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
                 document.getElementById('audioOutput').src = audioUrl;
+                amplifyAudio(audioBlob); // Call amplifyAudio function with recorded audio blob
             });
 
             mediaRecorder.start();
@@ -35,30 +36,27 @@ function stopRecording() {
         mediaRecorder.stop();
         document.getElementById('startRecording').disabled = false;
         document.getElementById('stopRecording').disabled = true;
+        mediaRecorder.stream.getTracks().forEach(track => track.stop()); // Stop the media stream
     }
 }
+
 function amplifyAudio(audioFile) {
     const audioContext = new AudioContext();
+    const source = audioContext.createBufferSource();
 
-    // Read the recorded audio file
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        audioContext.decodeAudioData(e.target.result, function(buffer) {
-            // Create a buffer source node
-            const source = audioContext.createBufferSource();
-            source.buffer = buffer;
+    // Create a buffer source node
+    audioContext.decodeAudioData(audioFile, function(buffer) {
+        source.buffer = buffer;
 
-            // Create a gain node for amplification
-            const gainNode = audioContext.createGain();
-            gainNode.gain.value = 55; // Adjust the gain value for higher amplification
+        // Create a gain node for amplification
+        const gainNode = audioContext.createGain();
+        gainNode.gain.value = 55; // Adjust the gain value for higher amplification
 
-            // Connect the nodes
-            source.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+        // Connect the nodes
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
 
-            // Start playback
-            source.start(0);
-        });
-    }
-    reader.readAsArrayBuffer(audioFile);
+        // Start playback
+        source.start(0);
+    });
 }
