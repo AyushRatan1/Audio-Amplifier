@@ -1,8 +1,10 @@
 let mediaRecorder;
 let recordedChunks = [];
+let amplifiedUrl; // Store amplified audio URL
 
 document.getElementById('startRecording').addEventListener('click', startRecording);
 document.getElementById('stopRecording').addEventListener('click', stopRecording);
+document.getElementById('playAmplified').addEventListener('click', playAmplified);
 
 function startRecording() {
     navigator.mediaDevices.getUserMedia({ audio: true })
@@ -17,9 +19,18 @@ function startRecording() {
 
             mediaRecorder.addEventListener('stop', () => {
                 const audioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
+
+                // Amplified output
+                amplifyAudio(audioBlob, amplifiedBlob => {
+                    amplifiedUrl = URL.createObjectURL(amplifiedBlob);
+                    const amplifiedOutput = document.getElementById('amplifiedOutput');
+                    amplifiedOutput.controls = true; // Ensure controls are shown
+                });
+
+                // Normal output
                 const audioUrl = URL.createObjectURL(audioBlob);
-                document.getElementById('audioOutput').src = audioUrl;
-                amplifyAudio(audioBlob); // Call amplifyAudio function with recorded audio blob
+                document.getElementById('normalAudioOutput').src = audioUrl;
+
             });
 
             mediaRecorder.start();
@@ -36,27 +47,29 @@ function stopRecording() {
         mediaRecorder.stop();
         document.getElementById('startRecording').disabled = false;
         document.getElementById('stopRecording').disabled = true;
-        mediaRecorder.stream.getTracks().forEach(track => track.stop()); // Stop the media stream
     }
 }
 
-function amplifyAudio(audioFile) {
+function amplifyAudio(inputBlob, callback) {
     const audioContext = new AudioContext();
-    const source = audioContext.createBufferSource();
-
-    // Create a buffer source node
-    audioContext.decodeAudioData(audioFile, function(buffer) {
-        source.buffer = buffer;
-
-        // Create a gain node for amplification
-        const gainNode = audioContext.createGain();
-        gainNode.gain.value = 55; // Adjust the gain value for higher amplification
-
-        // Connect the nodes
-        source.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        // Start playback
-        source.start(0);
-    });
+    const fileReader = new FileReader();
+    fileReader.onloadend = () => {
+        audioContext.decodeAudioData(fileReader.result, buffer => {
+            const audioBuffer = audioContext.createBufferSource();
+            audioBuffer.buffer = buffer;
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = 45; // Adjust the gain value as needed for amplification
+            audioBuffer.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            audioBuffer.start();
+            audioContext.startRendering().then(renderedBuffer => {
+                const audioBlob = new Blob([renderedBuffer.getChannelData(0)], { type: 'audio/wav' });
+                callback(audioBlob);
+            });
+        });
+    };
+    fileReader.readAsArrayBuffer(inputBlob);
 }
+
+
+

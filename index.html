@@ -12,6 +12,10 @@
         <h1 style="color: white;">Audio Power Amplifier Demo</h1>
     </header>
     <div class="back">
+        <video class="video-bg" autoplay muted loop>
+            <source src=".\media\vid.mp4"type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     <main>
         
         <section id="input">
@@ -31,12 +35,20 @@
             </div>
         </section>
         <section id="output">
-            <h2>Amplified Audio Output</h2>
-            <audio controls id="audioOutput"></audio>
+            <h2 style="color: aliceblue;">Amplified Audio Output</h2>
+            
+            
         </section>
+        <section id="normalOutput">
+            <h2 style="color: aliceblue;">Normal Audio Output</h2>
+            <audio controls id="normalAudioOutput"></audio>
+        </section>
+        
     </main>
     <footer>
-        <p>&copy; 2024 Your Name</p>
+       
+        <p style="color: rgb(255, 255, 255); margin-left: 172px;">AyushR ❤️</p>
+
     </footer>
 </div>
     <script src="script.js"></script>
