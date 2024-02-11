@@ -58,7 +58,7 @@ function amplifyAudio(inputBlob, callback) {
             const audioBuffer = audioContext.createBufferSource();
             audioBuffer.buffer = buffer;
             const gainNode = audioContext.createGain();
-            gainNode.gain.value = 45; // Adjust the gain value as needed for amplification
+            gainNode.gain.value = 18; // Adjust the gain value as needed for amplification
             audioBuffer.connect(gainNode);
             gainNode.connect(audioContext.destination);
             audioBuffer.start();
